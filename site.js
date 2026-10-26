@@ -1,12 +1,23 @@
 
 (function () {
   'use strict';
-  var CONSENT_TEXT = 'Tôi đồng ý cho Vũ Hoàng Lê dùng họ tên và số điện thoại của tôi để liên hệ tư vấn và xếp lịch lái thử.';
+  var CONSENT_TEXT = 'Tôi đồng ý cho Vũ Hoàng Lê dùng họ tên, số điện thoại, mẫu xe, ngày lái thử và ghi chú tôi nhập để liên hệ tư vấn và xếp lịch lái thử.';
   var NOTICE_VERSION = 'PDP-2026.1';
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
-  /* menu dien thoai: dong lai khi bam vao mot muc */
+  
+  $$('[data-fade]').forEach(function (el) {
+    var edge = function () {
+      el.classList.toggle('more', el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
+      el.classList.toggle('less', el.scrollLeft > 4);
+    };
+    el.addEventListener('scroll', edge, { passive: true });
+    window.addEventListener('resize', edge);
+    edge();
+  });
+
+  
   $$('.nav-m a').forEach(function (a) {
     a.addEventListener('click', function () {
       var d = a.closest('details');
@@ -14,7 +25,7 @@
     });
   });
 
-  /* trang chu: tab nhom xe (khi tat JS thi hien du 5 nhom) */
+  
   var cat = $('[data-catalog]');
   if (cat) {
     var bar = $('.tabbar', cat);
@@ -82,7 +93,7 @@
     });
   }
 
-  /* trang Vario 125: chon mau tu ?color=, khung so sanh */
+  
   var q = new URLSearchParams(location.search);
   var colorKey = q.get('color');
   if (colorKey) {
@@ -106,21 +117,17 @@
     }
   }
 
-  /* trang dang ky lai thu */
+  
   var form = document.getElementById('ride-form');
   if (!form) { return; }
 
-  // BACKEND: moi cho goi may chu nam trong doi tuong API. Ban demo khong gui du lieu di dau ca;
-  // khi lam that thay hai ham nay bang loi goi toi may chu cua dai ly.
   var seq = 0;
   var API = {
-    // BACKEND: POST /test-rides  {name, phone, model, date, note, consent:{text, noticeVersion}}  ->  {id, consentId, at}
     submitRide: function (payload) {
       return new Promise(function (resolve) {
         window.setTimeout(function () { seq += 1; resolve({ id: 'demo-' + seq, at: new Date() }); }, 600);
       });
     },
-    // BACKEND: POST /consents/{id}/withdraw  ->  {at}
     withdrawConsent: function (id) {
       return new Promise(function (resolve) {
         window.setTimeout(function () { resolve({ at: new Date() }); }, 300);
@@ -145,6 +152,13 @@
   var btn = document.getElementById('submit-btn');
   var ok = document.getElementById('ok-box');
   var body = document.getElementById('log-body');
+  var records = $$('tr', body).map(function (tr) {
+    return {
+      id: tr.getAttribute('data-id'), who: tr.getAttribute('data-who'), phone: tr.getAttribute('data-phone'),
+      at: tr.getAttribute('data-at'), text: CONSENT_TEXT, ver: tr.getAttribute('data-ver'),
+      state: tr.getAttribute('data-state'), off: tr.getAttribute('data-off') || '', sample: tr.getAttribute('data-sample') === '1'
+    };
+  });
 
   var now = new Date();
   f.date.min = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
@@ -174,6 +188,7 @@
     var tr = document.createElement('tr');
     tr.setAttribute('data-id', id);
     tr.className = 'new';
+    records.unshift({ id: id, who: name, phone: phoneMasked, at: fmt(at), text: CONSENT_TEXT, ver: NOTICE_VERSION, state: 'active', off: '', sample: false });
     function td(label) { var c = document.createElement('td'); c.setAttribute('data-label', label); tr.appendChild(c); return c; }
     var c1 = td('Ai đồng ý');
     var b = document.createElement('b'); b.textContent = name; c1.appendChild(b);
@@ -194,6 +209,7 @@
     var tr = t.closest('tr');
     t.disabled = true;
     API.withdrawConsent(tr.getAttribute('data-id')).then(function (res) {
+      records.forEach(function (r) { if (r.id === tr.getAttribute('data-id')) { r.state = 'withdrawn'; r.off = fmt(res.at); } });
       var cell = t.parentNode;
       while (cell.firstChild) { cell.removeChild(cell.firstChild); }
       var st = document.createElement('span');
@@ -254,17 +270,19 @@
     f.name.focus();
   });
 
-  /* tai nhat ky dang CSV */
+  
   document.getElementById('csv-btn').addEventListener('click', function () {
-    var lines = [['Ai đồng ý', 'Lúc nào', 'Nội dung đồng ý', 'Phiên bản thông báo', 'Trạng thái']];
-    $$('#log-body tr').forEach(function (tr) {
-      var c = $$('td', tr).map(function (td) { return td.textContent.replace(/\s+/g, ' ').trim(); });
-      lines.push(c);
+    var lines = [['Ai đồng ý', 'Số điện thoại (che bớt)', 'Lúc nào', 'Nội dung đồng ý', 'Phiên bản thông báo', 'Trạng thái', 'Rút lại lúc', 'Dữ liệu mẫu']];
+    records.forEach(function (r) {
+      lines.push([r.who, r.phone, r.at, r.text, r.ver, r.state === 'active' ? 'Đang hiệu lực' : 'Đã rút lại', r.off, r.sample ? 'Mẫu' : '']);
     });
-    var csv = lines.map(function (r) {
-      return r.map(function (x) { return '"' + x.replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\r\n');
-    var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    function cell(x) {
+      x = String(x);
+      if (/^[=+\-@\t\r]/.test(x)) { x = "'" + x; }
+      return '"' + x.replace(/"/g, '""') + '"';
+    }
+    var csv = lines.map(function (r) { return r.map(cell).join(','); }).join('\r\n');
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'consent-log-demo.csv';
