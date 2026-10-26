@@ -396,12 +396,12 @@ form input:focus,form select:focus,form textarea:focus{outline:2px solid var(--r
   var brochureBtn = document.getElementById('brochureBtn');
   if (brochureBtn) {
     brochureBtn.addEventListener('click', function () {
-      var text = 'BROCHURE DEMO — VARIO 125 (HEAD Honda Vũ Hoàng Lê)\n'
+      var text = 'BROCHURE DEMO, VARIO 125 (HEAD Honda Vũ Hoàng Lê)\n'
         + 'Thể thao, tiết kiệm, sẵn sàng mỗi ngày.\n'
         + 'Động cơ 125cc eSP làm mát bằng chất lỏng; mặt đồng hồ LCD toàn phần.\n'
-        + 'Màu: Đặc Biệt — Xanh Đen / Đen / Đỏ Đen; Thể Thao — Xanh Đen.\n'
+        + 'Màu: Đặc Biệt, Xanh Đen / Đen / Đỏ Đen; Thể Thao, Xanh Đen.\n'
         + 'Giá bán lẻ đề xuất: Liên hệ (hotline miễn phí 1800 1223).\n'
-        + 'Đây là brochure mẫu trong bản demo — chưa phải tài liệu chính thức.\n';
+        + 'Đây là brochure mẫu trong bản demo, chưa phải tài liệu chính thức.\n';
       var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -409,7 +409,7 @@ form input:focus,form select:focus,form textarea:focus{outline:2px solid var(--r
       document.body.appendChild(a);
       a.click();
       a.remove();
-      showToast('Đã tải brochure mẫu (bản demo) — xem file brochure-vario-125-demo.txt.');
+      showToast('Đã tải brochure mẫu (bản demo), xem file brochure-vario-125-demo.txt.');
     });
   }
   // --- Compare strip toggle ---
@@ -436,7 +436,7 @@ form input:focus,form select:focus,form textarea:focus{outline:2px solid var(--r
     if (!name) { nameErr.classList.add('show'); ok = false; } else { nameErr.classList.remove('show'); }
     if (!/^0[0-9]{9}$/.test(phone)) { phoneErr.classList.add('show'); ok = false; } else { phoneErr.classList.remove('show'); }
     if (!consent) { consentErr.classList.add('show'); ok = false; } else { consentErr.classList.remove('show'); }
-    if (!ok) { showToast('Chưa gửi được — vui lòng kiểm tra các mục báo lỗi phía trên.'); return; }
+    if (!ok) { showToast('Chưa gửi được, vui lòng kiểm tra các mục báo lỗi phía trên.'); return; }
     var model = document.getElementById('fModel').value;
     var date = document.getElementById('fDate').value || 'Chưa chọn ngày';
     var now = new Date().toLocaleString('vi-VN');
@@ -450,9 +450,9 @@ form input:focus,form select:focus,form textarea:focus{outline:2px solid var(--r
     document.getElementById('logTable').removeAttribute('hidden');
     document.getElementById('logEmpty').style.display = 'none';
     var box = document.getElementById('successBox');
-    box.innerHTML = '<strong>Đăng ký thành công (bản demo).</strong><br>Cảm ơn ' + name.replace(/</g, '&lt;') + ' — HEAD Vũ Hoàng Lê sẽ liên hệ số ' + phone.replace(/</g, '&lt;') + ' để xác nhận lịch lái thử mẫu ' + model + ' vào ' + date + '.<br><span class="note">Dữ liệu chỉ lưu trong trang này, không gửi đi.</span>';
+    box.innerHTML = '<strong>Đăng ký thành công (bản demo).</strong><br>Cảm ơn ' + name.replace(/</g, '&lt;') + ', HEAD Vũ Hoàng Lê sẽ liên hệ số ' + phone.replace(/</g, '&lt;') + ' để xác nhận lịch lái thử mẫu ' + model + ' vào ' + date + '.<br><span class="note">Dữ liệu chỉ lưu trong trang này, không gửi đi.</span>';
     box.classList.add('show');
-    showToast('Đăng ký thành công — dòng đồng ý đã được ghi vào nhật ký bên dưới.');
+    showToast('Đăng ký thành công, dòng đồng ý đã được ghi vào nhật ký bên dưới.');
   });
 })();
 </script>
