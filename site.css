@@ -351,6 +351,14 @@ h1,h2,h3{text-wrap-style:balance}
   .spec tbody th{width:44%}
   .cmp{padding:20px}
 }
+@media (max-width:640px){
+  .spec,.spec tbody,.spec tr,.spec th,.spec td{display:block}
+  .spec tr{padding:10px 0;border-bottom:1px solid var(--line)}
+  .spec tr.g{padding:0;border-bottom:0}
+  .spec tbody th{width:auto;padding:0 12px;border-bottom:0;font-size:14px}
+  .spec td{padding:2px 12px 0;border-bottom:0;font-size:15px}
+  .spec .g th{padding:12px 12px}
+}
 
 
 .pg-head{background:linear-gradient(180deg,#f6f7f9 0%,#e9ecef 100%);padding:40px 0 44px;border-bottom:1px solid var(--line)}
@@ -373,6 +381,8 @@ textarea.inp{min-height:96px;resize:vertical}
 .hint{margin-top:6px;font-size:13px;color:var(--muted)}
 .err{display:none;margin-top:6px;font-size:14px;font-weight:600;color:var(--err)}
 .err.show{display:block}
+.fld .err{display:block;visibility:hidden;min-height:22px}
+.fld .err.show{visibility:visible}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 .consent{margin-top:24px;padding:18px;border:1.5px solid var(--line);border-radius:var(--r-card);background:var(--soft)}
 .consent.bad{border-color:var(--err);background:var(--err-bg)}
